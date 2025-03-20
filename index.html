@@ -1,34 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Library Demo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D</title>
+  <style>
+    body, html {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background: #000;
+    }
+#guiContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
+  background: transparent;
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: "";
+  position: absolute;
+  background: white;
+}
+
+#crosshair::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#crosshair::after {
+  height: 2px;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.overlayText {
+    position: fixed;
+    left: 10px;
+    font-size: 20px;
+    color: white;
+  }
+
+
+  </style>
 </head>
 <body>
-    <canvas id="3dCanvas" width="850" height="600"></canvas>
-    <script src="./scr/drawstuff.js"></script>
-    <script>
-        const canvas = document.getElementById('3dCanvas');
-        const gl = canvas.getContext('webgl');
+  <canvas id="webglCanvas"></canvas>
 
-        mystuff.draw.drawTriangles([
-            0, 0, 1,
-            1, 0, 1,
-            0, 1, 1,
-            1, 0, 1,
-            0, 1, 1,
-            1, 1, 1
-        ], [1.0, 0.0, 0.0, 1.0,]);
+  <script src="3d.js"></script>
+ 
+  <div class="overlayText">camPos: <span id="cameraPosition">[0, 0, 0]</span></div>
+  <div class="overlayText">camYaw: <span id="cameraYaw">0</span></div>
+  <div class="overlayText">camPit: <span id="cameraPitch">0</span></div>
 
-        /*function resizeCanvas(canvas, gl) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      console.log(canvas.width)
-      console.log(canvas.height)
+  <div id="guiContainer">
+    <div id="crosshair"></div>
+  </div>
+
+  <script>
+
+    const overlayTexts = [...document.querySelectorAll('.overlayText')];
+    overlayTexts[0].style.top = "10px";
+    overlayTexts[1].style.top = "40px";
+    overlayTexts[2].style.top = "70px";
+
+    glmatrix.onload = function() {
+    draw.addtriangles([
+    1,1,1,0,1,1,1,
+    1,2,1,1,1,0,1,
+    2,1,1,1,0,1,1
+    ])
+
     }
-    resizeCanvas(canvas, gl);*/
-    </script>
+//  display: none;    
+
+  </script>
+
+  
 </body>
 </html>
