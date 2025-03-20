@@ -17,15 +17,8 @@ const canvas = document.getElementById('webglCanvas');
 const gl = canvas.getContext('webgl');
 
 function addtriangles(verticesArray) {
-    if (!Array.isArray(verticesArray) || verticesArray.length === 0) {
-        console.error("Invalid input: Expected a non-empty array.");
-        return;
-    }
-
     if (verticesArray.length % 21 === 0) {
-        vertices.push(...verticesArray); // Spread syntax adds individual elements
-    } else {
-        console.warn("Vertices array length must be divisible by 21.");
+        vertices.push(...verticesArray);
     }
 }
 
@@ -42,12 +35,11 @@ function render() {
     
     }
 
-    function resizeCanvas(canvas, gl) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-        } 
-
+function resizeCanvas(canvas, gl) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
 
 let cameraPosition = [0, 0, 5];
 let cameraFront = [0, 0, -1];
@@ -117,7 +109,7 @@ function updateCamera() {
       cameraPosition[2] + cameraFront[2]
     ];
     mat4.lookAt(modelViewMatrix, cameraPosition, cameraTarget, cameraUp);
-  }
+}
 
 
 const vertexShaderSource = `
@@ -141,30 +133,29 @@ void main() {
 `;
 
 function createShader(gl, type, source) {
-const shader = gl.createShader(type);
-gl.shaderSource(shader, source);
-gl.compileShader(shader);
-if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-  console.error('Error compiling shader:', gl.getShaderInfoLog(shader));
-  gl.deleteShader(shader);
-  return null;
-}
-return shader;
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error('Error compiling shader:', gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+    }
+    return shader;
 }
 
 function createProgram(gl, vertexShader, fragmentShader) {
-const program = gl.createProgram();
-gl.attachShader(program, vertexShader);
-gl.attachShader(program, fragmentShader);
-gl.linkProgram(program);
-if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-  console.error('Error linking program:', gl.getProgramInfoLog(program));
-  gl.deleteProgram(program);
-  return null;
+    const program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error('Error linking program:', gl.getProgramInfoLog(program));
+        gl.deleteProgram(program);
+        return null;
+    }
+    return program;
 }
-return program;
-}
-
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -193,33 +184,34 @@ if (!gl) {
 
 
 function renderTriangles(vertices) {
-document.getElementById('cameraPosition').textContent = `[${cameraPosition.map(coord => coord.toFixed(1)).join(', ')}]`; 
-document.getElementById('cameraYaw').textContent = cameraYaw; 
-document.getElementById('cameraPitch').textContent = cameraPitch;
+    document.getElementById('cameraPosition').textContent = `[${cameraPosition.map(coord => coord.toFixed(1)).join(', ')}]`; 
+    document.getElementById('cameraYaw').textContent = cameraYaw; 
+    document.getElementById('cameraPitch').textContent = cameraPitch;
 
-gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-gl.useProgram(program);
+    gl.useProgram(program); 
 
-gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
-gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
+    gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
+    gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
 
-gl.clearColor(0.0, 0.0, 0.0, 1.0);
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-gl.enable(gl.DEPTH_TEST);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
 
-if (vertices.length > 0) {
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    if (vertices.length > 0) {
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
-gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 7 * Float32Array.BYTES_PER_ELEMENT, 0);
-gl.enableVertexAttribArray(aPosition);
+        gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 7 * Float32Array.BYTES_PER_ELEMENT, 0);
+        gl.enableVertexAttribArray(aPosition);
 
-gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 7 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
-gl.enableVertexAttribArray(aColor);
+        gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 7 * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+        gl.enableVertexAttribArray(aColor);
 
-gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 7);
-}}
+        gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 7);
+    }
+}
 
 
 render(); 
