@@ -2,18 +2,54 @@ const glmatrix = document.createElement('script');
 glmatrix.src = 'https://cdn.jsdelivr.net/npm/gl-matrix@2.8.1/dist/gl-matrix-min.js';
 document.head.appendChild(glmatrix);
 glmatrix.addEventListener('load', () => {
+Objects = []
+renderObjects = []
 
+function new_obj(){
+  let obj = {
+    pos: [0,0,0],
+    rot: [0,0,0],
+    vertices: [],
+    id: ""
+  }
+  return obj;
+}
+
+function add_obj(obj){
+  if (obj.vertices.length % 21 === 0) {
+    Objects.push(obj)
+  }else{
+    console.log("add_obj not % 21")
+  }
+}
+function new_test(){
+  const newDiv = document.createElement("div");
+  newDiv.textContent = "Styled Div";
+  newDiv.style.top = "100px";
+  newDiv.classList.add("overlayText");
+  document.body.appendChild(newDiv);
+}
 let vertices = [];
-const map_vertices = [
-    10,-1,10,0x59/255,0x59/255,0x59/255,1,
-    -10,-1,10,0x59/255,0x59/255,0x59/255,1,
-    -10,-1,-10,0x59/255,0x59/255,0x59/255,1,
-    10,-1,10,0x59/255,0x59/255,0x59/255,1,
-    10,-1,-10,0x59/255,0x59/255,0x59/255,1,
-    -10,-1,-10,0x59/255,0x59/255,0x59/255,1
-]
 
-const canvas = document.getElementById('webglCanvas');
+
+
+
+map_vertices = new_obj();
+map_vertices.id = "map vertices"
+map_vertices.pos[1] = -1
+map_vertices.vertices = [
+  10,0,10,0.34,0.34,0.34,1,
+  -10,0,10,0.34,0.34,0.34,1,
+  -10,0,-10,0.34,0.34,0.34,1,
+  10,0,10,0.34,0.34,0.34,1,
+  10,0,-10,0.34,0.34,0.34,1,
+  -10,0,-10,0.34,0.34,0.34,1
+]
+add_obj(map_vertices)
+
+let overlayText = [...document.querySelectorAll('.overlayText')];
+
+const canvas = document.getElementById('3d');
 const gl = canvas.getContext('webgl');
 
 function addtriangles(verticesArray) {
@@ -21,15 +57,38 @@ function addtriangles(verticesArray) {
         vertices.push(...verticesArray);
     }
 }
+function makeobjvertices(){
+  for (let i = 0; i < Objects.length; i++) {
+    for (let x = 0; x < Objects[i].vertices.length / 21; x++) {
+        let objectvertices = [];
+        for (let z = 0; z < 21; z++) {
+            objectvertices[z] = Objects[i].vertices[21 * x + z];
+        }
 
+        objectvertices[0] += Objects[i].pos[0];
+        objectvertices[1] += Objects[i].pos[1];
+        objectvertices[2] += Objects[i].pos[2];
+        objectvertices[7] += Objects[i].pos[0];
+        objectvertices[8] += Objects[i].pos[1];
+        objectvertices[9] += Objects[i].pos[2];
+        objectvertices[14] += Objects[i].pos[0];
+        objectvertices[15] += Objects[i].pos[1];
+        objectvertices[16] += Objects[i].pos[2];
+
+        renderObjects.push(...objectvertices);
+    }
+}
+}
 
 function render() {
 
     handleMovement();
     updateCamera();
     resizeCanvas(canvas, gl);
-    
-    let renderVertices = [...map_vertices,...vertices];
+    renderObjects = []
+    makeobjvertices();    
+
+    let renderVertices = [...vertices,...renderObjects];
     renderTriangles(renderVertices);
     requestAnimationFrame(() => render());
     
@@ -217,6 +276,11 @@ function renderTriangles(vertices) {
 render(); 
 
 window.draw = {
-    addtriangles
+    addtriangles,
+    obj:{
+      new_obj,
+      add_obj
+    },
+    overlayText,
 };
 })
