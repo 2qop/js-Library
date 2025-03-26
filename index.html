@@ -57,6 +57,8 @@
     position: fixed;
     font-size: 20px;
     color: white;
+    left: 10px;
+    top: 10px
   }
 
 
@@ -65,7 +67,7 @@
 <body>
   <canvas id="3d"></canvas>
 
-  <script src="3d.min.js"></script>
+  <script src="3d.js"></script>
  
   <div class="overlayText">camPos: <span id="cameraPosition">[0, 0, 0]</span></div>
   <div class="overlayText">camYaw: <span id="cameraYaw">0</span></div>
@@ -76,39 +78,34 @@
   </div>
 
   <script>
+  function onframe() {
+      if (test.rot[1] == 360){
+        test.rot = [0,0,0]
+      } else {
+        test.rot[0] += 1
+        test.rot[1] += 1
+      }
+    }
     glmatrix.onload = function() {
 
-    draw.overlayText[0].style.top = "10px";
-    draw.overlayText[1].style.top = "40px";
-    draw.overlayText[2].style.top = "70px";
-
+    div = draw.text.new_text();
+    div.textContent = "Styled Div";
+    div.style.top = "100px"
+    div.style.left = "10px"
 
     test = draw.obj.new_obj();
-      test.vertices = [
-      1,1,-1,0,1,1,1,
-      1,2,-1,1,1,0,1,
-      2,1,-1,1,0,1,1,
-      -1,1,-1,1,0,0,1,
-      -1,2,-1,1,0,0,1,
-      0,1,-1,1,0,0,1,
-      0,2,-1,0,1,0,1,
-      -1,2,-1,0,1,0,1,
-      0,1,-1,0,1,0,1
-      ]
-      test.pos = [0,-1,-2]
+      test.vertices = draw.obj.vertices.new_c_more()
+      test.pos = [0,0,0]
+      test.rot = [0,0,0]
       test.id = "test"
-      draw.obj.add_obj(test)
 
-    draw.addtriangles([
-    1,1,1,0,1,1,1,
-    1,2,1,1,1,0,1,
-    2,1,1,1,0,1,1
-    ])
-    }
-//  display: none;    
 
+      test2 = draw.obj.new_obj();
+      test2.vertices = draw.obj.vertices.new_c([1,0,0,1],0.1)
+      test2.pos = [0.5,2,0.5]
+      test2.rot = [0,0,0]
+      test2.id = "test2"
+    }    
   </script>
-
-  
 </body>
 </html>

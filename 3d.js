@@ -4,7 +4,9 @@ document.head.appendChild(glmatrix);
 glmatrix.addEventListener('load', () => {
 Objects = []
 renderObjects = []
-
+cam_debug = true
+let is_load = false
+let overlayText = [...document.querySelectorAll('.overlayText')];
 function new_obj(){
   let obj = {
     pos: [0,0,0],
@@ -12,27 +14,129 @@ function new_obj(){
     vertices: [],
     id: ""
   }
+  Objects.push(obj)
   return obj;
 }
+function remove_obj(id){
 
-function add_obj(obj){
-  if (obj.vertices.length % 21 === 0) {
-    Objects.push(obj)
-  }else{
-    console.log("add_obj not % 21")
-  }
 }
-function new_test(){
+function new_c(color = [1,0,0,1],size = 1){
+  size = size / 2
+  return [
+    -size, -size, -size, ...color,
+    -size, size, -size, ...color,
+    size, -size, -size, ...color,
+    size, size, -size, ...color,
+    -size, size, -size, ...color,
+    size, -size, -size, ...color,
+    -size, -size, size, ...color,
+    -size, size, size, ...color,
+    size, -size, size, ...color,
+    size, size, size, ...color,
+    -size, size, size, ...color,
+    size, -size, size, ...color,
+    -size, -size, -size, ...color,
+    size, -size, -size, ...color,
+    -size, -size, size, ...color,
+    size, -size, size, ...color,
+    size, -size, -size, ...color,
+    -size, -size, size, ...color,
+    -size, size, -size, ...color,
+    size, size, -size, ...color,
+    -size, size, size, ...color,
+    size, size, size, ...color,
+    size, size, -size, ...color,
+    -size, size, size, ...color,
+    -size, -size, -size, ...color,
+    -size, -size, size, ...color,
+    -size, size, -size, ...color,
+    -size, size, size, ...color,
+    -size, -size, size, ...color,
+    -size, size, -size, ...color,
+    size, -size, -size, ...color,
+    size, -size, size, ...color,
+    size, size, -size, ...color,
+    size, size, size, ...color,
+    size, -size, size, ...color,
+    size, size, -size, ...color,
+  ];
+}
+function new_c_more(color = [[1,0,0,1],[0,1,0,1],[0,0,1,1],[1,1,0,1],[1,0,1,1],[0,1,1,1]],size = 1){
+  size = size / 2
+  return [
+    -size, -size, -size, ...color[0],
+    -size, size, -size, ...color[0],
+    size, -size, -size, ...color[0],
+    size, size, -size, ...color[0],
+    -size, size, -size, ...color[0],
+    size, -size, -size, ...color[0],
+    -size, -size, size, ...color[1],
+    -size, size, size, ...color[1],
+    size, -size, size, ...color[1],
+    size, size, size, ...color[1],
+    -size, size, size, ...color[1],
+    size, -size, size, ...color[1],
+    -size, -size, -size, ...color[2],
+    size, -size, -size, ...color[2],
+    -size, -size, size, ...color[2],
+    size, -size, size, ...color[2],
+    size, -size, -size, ...color[2],
+    -size, -size, size, ...color[2],
+    -size, size, -size, ...color[3],
+    size, size, -size, ...color[3],
+    -size, size, size, ...color[3],
+    size, size, size, ...color[3],
+    size, size, -size, ...color[3],
+    -size, size, size, ...color[3],
+    -size, -size, -size, ...color[4],
+    -size, -size, size, ...color[4],
+    -size, size, -size, ...color[4],
+    -size, size, size, ...color[4],
+    -size, -size, size, ...color[4],
+    -size, size, -size, ...color[4],
+    size, -size, -size, ...color[5],
+    size, -size, size, ...color[5],
+    size, size, -size, ...color[5],
+    size, size, size, ...color[5],
+    size, -size, size, ...color[5],
+    size, size, -size, ...color[5],
+  ];
+}
+function new_text(){
   const newDiv = document.createElement("div");
-  newDiv.textContent = "Styled Div";
   newDiv.style.top = "100px";
+  newDiv.style.left = "100px";
   newDiv.classList.add("overlayText");
   document.body.appendChild(newDiv);
+  return newDiv;
 }
 let vertices = [];
 
 
-
+function rotateoneVector(v, axis, angleDegrees) {
+  const angle = angleDegrees * (Math.PI / 180);
+  const cosA = Math.cos(angle);
+  const sinA = Math.sin(angle);
+  const dot = v[0] * axis[0] + v[1] * axis[1] + v[2] * axis[2];
+  
+  return roundVector([
+      v[0] * cosA + (axis[1] * v[2] - axis[2] * v[1]) * sinA + axis[0] * dot * (1 - cosA),
+      v[1] * cosA + (axis[2] * v[0] - axis[0] * v[2]) * sinA + axis[1] * dot * (1 - cosA),
+      v[2] * cosA + (axis[0] * v[1] - axis[1] * v[0]) * sinA + axis[2] * dot * (1 - cosA)
+  ]);
+}
+function rotateVector(v,angle){
+  if (angle[0] != 0){
+    v = rotateoneVector(v,[1,0,0],angle[0])
+  }
+  if (angle[1] != 0){
+    v = rotateoneVector(v,[0,1,0],angle[1])
+  }
+  if (angle[2] != 0){
+    v = rotateoneVector(v,[0,0,1],angle[2])
+  }
+  return v
+}
 
 map_vertices = new_obj();
 map_vertices.id = "map vertices"
@@ -45,9 +149,6 @@ map_vertices.vertices = [
   10,0,-10,0.34,0.34,0.34,1,
   -10,0,-10,0.34,0.34,0.34,1
 ]
-add_obj(map_vertices)
-
-let overlayText = [...document.querySelectorAll('.overlayText')];
 
 const canvas = document.getElementById('3d');
 const gl = canvas.getContext('webgl');
@@ -57,12 +158,19 @@ function addtriangles(verticesArray) {
         vertices.push(...verticesArray);
     }
 }
+
 function makeobjvertices(){
   for (let i = 0; i < Objects.length; i++) {
     for (let x = 0; x < Objects[i].vertices.length / 21; x++) {
         let objectvertices = [];
         for (let z = 0; z < 21; z++) {
             objectvertices[z] = Objects[i].vertices[21 * x + z];
+        }
+        for (let z = 0; z < 3; z++) {
+          rotatedVertex = rotateVector([objectvertices[0+z*7],objectvertices[1+z*7],objectvertices[2+z*7]],Objects[i].rot)
+          objectvertices[0+z*7] = rotatedVertex[0]
+          objectvertices[1+z*7] = rotatedVertex[1]
+          objectvertices[2+z*7] = rotatedVertex[2]
         }
 
         objectvertices[0] += Objects[i].pos[0];
@@ -79,19 +187,39 @@ function makeobjvertices(){
     }
 }
 }
+function roundVector(vector, precision = 10) {
+  return vector.map(val => Math.abs(val) < 1e-10 ? 0 : parseFloat(val.toFixed(precision)));
+}
 
 function render() {
+    if (is_load){
 
     handleMovement();
     updateCamera();
     resizeCanvas(canvas, gl);
+    if (!cam_debug) { 
+      document.getElementById('cameraPosition').style.left = "-100px";
+      document.getElementById('cameraYaw').style.display = "none";
+      document.getElementById('cameraPitch').style.display = "none";
+    } else {
+      document.getElementById('cameraPosition').style.display = "";
+      document.getElementById('cameraYaw').style.display = "";
+      document.getElementById('cameraPitch').style.display = "";
+    }
+    try {
+        onframe();
+    } catch(error) {
+      console.log(error)
+    }
+  
     renderObjects = []
-    makeobjvertices();    
+    makeobjvertices();   
 
     let renderVertices = [...vertices,...renderObjects];
+
     renderTriangles(renderVertices);
+  }
     requestAnimationFrame(() => render());
-    
     }
 
 function resizeCanvas(canvas, gl) {
@@ -171,37 +299,25 @@ function updateCamera() {
 }
 
 
-const vertexShaderSource = `
-attribute vec3 aPosition;
-attribute vec4 aColor;
-varying vec4 vColor;
-uniform mat4 uModelViewMatrix;
-uniform mat4 uProjectionMatrix;
-void main() {
-  gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
-  vColor = aColor;
-}
-`;
+function createShader(gl, type) {
+  let source;
+  if (type === gl.VERTEX_SHADER) {
+      source = "attribute vec3 aPosition;attribute vec4 aColor;varying vec4 vColor;uniform mat4 uModelViewMatrix;uniform mat4 uProjectionMatrix;void main(){gl_Position=uProjectionMatrix*uModelViewMatrix*vec4(aPosition,1.0);vColor=aColor;}";
+  } else if (type === gl.FRAGMENT_SHADER) {
+      source = "precision mediump float;varying vec4 vColor;void main(){gl_FragColor=vColor;}";
+  }
 
-const fragmentShaderSource = `
-precision mediump float;
-varying vec4 vColor;
-void main() {
-  gl_FragColor = vColor;
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('Error compiling shader:', gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+  }
+  return shader;
 }
-`;
 
-function createShader(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error('Error compiling shader:', gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
-    }
-    return shader;
-}
 
 function createProgram(gl, vertexShader, fragmentShader) {
     const program = gl.createProgram();
@@ -216,8 +332,8 @@ function createProgram(gl, vertexShader, fragmentShader) {
     return program;
 }
 
-const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+const vertexShader = createShader(gl, gl.VERTEX_SHADER);
+const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER);
 const program = createProgram(gl, vertexShader, fragmentShader);
 
 const buffer = gl.createBuffer();
@@ -233,19 +349,20 @@ const modelViewMatrix = mat4.create();
 const projectionMatrix = mat4.create();
 mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 100);
 
-
 if (!gl) {
   console.error('WebGL not supported!');
   return;
 }
 
-
-
+overlayText[0].style.top = "10px";
+overlayText[1].style.top = "40px";
+overlayText[2].style.top = "70px";
 
 function renderTriangles(vertices) {
-    document.getElementById('cameraPosition').textContent = `[${cameraPosition.map(coord => coord.toFixed(1)).join(', ')}]`; 
-    document.getElementById('cameraYaw').textContent = cameraYaw; 
-    document.getElementById('cameraPitch').textContent = cameraPitch;
+
+  document.getElementById('cameraPosition').textContent = `[${cameraPosition.map(coord => coord.toFixed(1)).join(', ')}]`; 
+  document.getElementById('cameraYaw').textContent = cameraYaw; 
+  document.getElementById('cameraPitch').textContent = cameraPitch;
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -279,8 +396,26 @@ window.draw = {
     addtriangles,
     obj:{
       new_obj,
-      add_obj
+      remove_obj,
+      vertices:{
+        new_c,
+        new_c_more
+      }
     },
+    text:{
+        new_text,
+        cam_debug
+    },
+    keysPressed,
     overlayText,
+    roundVector,
+    cam:{
+      cameraPosition,
+      cameraYaw,
+      cameraPitch,
+      cam_debug
+    },
+    Objects
 };
+is_load = true
 })
